@@ -1,10 +1,12 @@
 {
     "7402066335": {
-        "score": 868.5,
-        "tests": 12,
+        "score": 1177.1,
+        "tests": 16,
         "completed_lessons": [
             1
-        ]
+        ],
+        "level": "Advanced",
+        "last_updated": "2025-05-16 12:26:37.557356"
     },
     "7533161151": {
         "score": 50,

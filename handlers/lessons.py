@@ -1,14 +1,16 @@
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, FSInputFile
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, FSInputFile, Voice
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 import json
 import os
 import random
-from gtts import gTTS
-from googletrans import Translator
-from eng_to_ipa import convert
 from handlers.vocabulary import TestState
 from themes import LESSONS
+from utils.stats_manager import load_users, save_users, update_test_stat, get_user_stats
+import speech_recognition as sr
+from pydub import AudioSegment
+from aiogram.filters import Command
+from langdetect import detect
 
 class LessonState(StatesGroup):
     waiting_for_lesson = State()
@@ -21,37 +23,30 @@ class PronounceState(StatesGroup):
     waiting_for_language = State()
     waiting_for_word = State()
 
+VOICE_TEST_STATE = State()
 
+async def start_voice_test(message: Message, state: FSMContext):
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Ovozli mashqni boshlash", callback_data="start_voice_test")]
+    ])
+    await message.answer("🗣 Ovozli inglizcha talaffuz mashqi!\nTugmani bosing yoki /voice_test buyrug'ini yuboring.", reply_markup=keyboard)
 
-
-
-
-
-
-
-
-
+async def voice_test_button_handler(callback_query: CallbackQuery, state: FSMContext):
+    await state.set_state(VOICE_TEST_STATE)
+    await callback_query.message.answer("Iltimos, ingliz tilida gapirib ovozli xabar yuboring.")
+    await callback_query.answer()
 
 # JSON fayl bilan ishlash uchun funksiyalar
-def load_users():
-    if os.path.exists("users.json"):
-        with open("users.json", "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {}
+# --- KERAKSIZ FUNKSIYALAR OLIB TASHLANDI ---
+# def load_users(): ...
+# def save_users(users): ...
+# def create_hint(word): ...
+# Endi faqat stats_manager.py dagi funksiyalar ishlatiladi
 
-def save_users(users):
-    with open("users.json", "w", encoding="utf-8") as f:
-        json.dump(users, f, ensure_ascii=False, indent=4)
-
-# So'zning bir qismini yashirish uchun funksiya
-def create_hint(word):
-    if len(word) < 3:
-        return word
-    indices = random.sample(range(len(word)), len(word) // 2)
-    hint = list(word)
-    for i in indices:
-        hint[i] = "_"
-    return "".join(hint)
+# Importlarni tozalash
+from gtts import gTTS
+from googletrans import Translator
+from eng_to_ipa import convert
 
 # Talaffuzni generatsiya qilish
 def synthesize_speech(text):
@@ -230,38 +225,18 @@ async def process_lesson_test_answer(message: Message, state: FSMContext):
             await state.update_data(current_question=current_question, correct_answers=correct_answers)
         else:
             percentage = (correct_answers / 30) * 100
-            users = load_users()
-            if str(user_id) not in users:
-                users[str(user_id)] = {"score": 0, "tests": 0}
-            users[str(user_id)]["score"] += correct_answers * 10
-            users[str(user_id)]["tests"] += 1
-            save_users(users)
-
+            # Statistika faqat update_test_stat orqali yangilanadi
+            update_test_stat(user_id, correct_answers * 10)
+            user_stats = get_user_stats(user_id)
             response = (
                 f"🏁 Test yakunlandi!\n"
                 f"✅ To‘g‘ri javoblar: {correct_answers}/30\n"
                 f"📊 Foiz: {percentage:.2f}%\n"
-                f"🎉 Umumiy ballingiz: {users[str(user_id)]['score']}\n"
+                f"🎉 Umumiy ballingiz: {user_stats['score']}\n"
                 f"Natijangiz: {'Ajoyib!' if percentage >= 80 else 'Yaxshi!' if percentage >= 60 else 'Yana harakat qiling!'}"
             )
             await message.answer(response, parse_mode='Markdown')
             await state.clear()
-    except Exception as e:
-        await message.answer(f"Xatolik yuz berdi: {str(e)}")
-
-async def show_rating(message: Message):
-    try:
-        users = load_users()
-        username = message.from_user.username
-        if not users:
-            await message.answer("Hozircha reyting ma'lumotlari yo'q.")
-            return
-
-        sorted_users = sorted(users.items(), key=lambda x: x[1]["score"], reverse=True)
-        response = "🏆 Reyting:\n"
-        for i, (user_id, data) in enumerate(sorted_users, 1):
-            response += f"{i}. Foydalanuvchi {username} - {data['score']} ball, {data['tests']} ta test\n"
-        await message.answer(response)
     except Exception as e:
         await message.answer(f"Xatolik yuz berdi: {str(e)}")
 
@@ -276,7 +251,7 @@ async def start_game(message: Message, state: FSMContext):
         current_index = 0
         word = current_words[current_index]["word"]
         audio_file = synthesize_speech(word)
-        if audio_file:
+        if (audio_file):
             audio = FSInputFile(audio_file)
             await message.answer_audio(audio, caption=f"🎮 So‘zni toping! {current_index + 1}/10\nUrinishlaringiz: 3\nJavobni yuboring.")
             os.remove(audio_file)
@@ -304,13 +279,9 @@ async def process_game_answer(message: Message, state: FSMContext):
         total_score = data.get("total_score", 0.0)
 
         if current_index >= len(words):
-            users = load_users()
-            if str(user_id) not in users:
-                users[str(user_id)] = {"score": 0, "tests": 0}
-            users[str(user_id)]["score"] += total_score
-            users[str(user_id)]["tests"] += 1
-            save_users(users)
-            await message.answer(f"🏁 O‘yin tugadi!\nUmumiy ballingiz: {total_score:.1f}\nUmumiy hisobingiz: {users[str(user_id)]['score']}")
+            update_test_stat(user_id, total_score)
+            user_stats = get_user_stats(user_id)
+            await message.answer(f"🏁 O‘yin tugadi!\nUmumiy ballingiz: {total_score:.1f}\nUmumiy hisobingiz: {user_stats['score']}")
             await state.clear()
             return
 
@@ -331,13 +302,9 @@ async def process_game_answer(message: Message, state: FSMContext):
                     await message.answer(f"🎮 So‘zni toping! {current_index + 1}/10\nUrinishlaringiz: 3\nJavobni yuboring (audio yuklanmadi).")
                 await state.update_data(current_index=current_index, attempts=3, total_score=total_score)
             else:
-                users = load_users()
-                if str(user_id) not in users:
-                    users[str(user_id)] = {"score": 0, "tests": 0}
-                users[str(user_id)]["score"] += total_score
-                users[str(user_id)]["tests"] += 1
-                save_users(users)
-                await message.answer(f"🏁 O‘yin tugadi!\nUmumiy ballingiz: {total_score:.1f}\nUmumiy hisobingiz: {users[str(user_id)]['score']}")
+                update_test_stat(user_id, total_score)
+                user_stats = get_user_stats(user_id)
+                await message.answer(f"🏁 O‘yin tugadi!\nUmumiy ballingiz: {total_score:.1f}\nUmumiy hisobingiz: {user_stats['score']}")
                 await state.clear()
         else:
             attempts -= 1
@@ -359,13 +326,9 @@ async def process_game_answer(message: Message, state: FSMContext):
                         await message.answer(f"🎮 So‘zni toping! {current_index + 1}/10\nUrinishlaringiz: 3\nJavobni yuboring (audio yuklanmadi).")
                     await state.update_data(current_index=current_index, attempts=3, total_score=total_score)
                 else:
-                    users = load_users()
-                    if str(user_id) not in users:
-                        users[str(user_id)] = {"score": 0, "tests": 0}
-                    users[str(user_id)]["score"] += total_score
-                    users[str(user_id)]["tests"] += 1
-                    save_users(users)
-                    await message.answer(f"🏁 O‘yin tugadi!\nUmumiy ballingiz: {total_score:.1f}\nUmumiy hisobingiz: {users[str(user_id)]['score']}")
+                    update_test_stat(user_id, total_score)
+                    user_stats = get_user_stats(user_id)
+                    await message.answer(f"🏁 O‘yin tugadi!\nUmumiy ballingiz: {total_score:.1f}\nUmumiy hisobingiz: {user_stats['score']}")
                     await state.clear()
     except Exception as e:
         await message.answer(f"Xatolik yuz berdi: {str(e)}")
@@ -480,3 +443,78 @@ async def stop_pronounce(callback_query: CallbackQuery, state: FSMContext):
         await callback_query.answer()
     except Exception as e:
         await callback_query.message.answer(f"Xatolik yuz berdi: {str(e)}")
+
+async def show_rating(message: Message):
+    try:
+        users = load_users()
+        if not users:
+            await message.answer("Hozircha reyting ma'lumotlari yo'q.")
+            return
+        sorted_users = sorted(users.items(), key=lambda x: x[1]["score"], reverse=True)
+        response = "🏆 Reyting:\n"
+        for i, (user_id, data) in enumerate(sorted_users, 1):
+            response += f"{i}. Foydalanuvchi {user_id} - {data['score']} ball, {data['tests']} ta test\n"
+        await message.answer(response)
+    except Exception as e:
+        await message.answer(f"Xatolik yuz berdi: {str(e)}")
+
+# --- Ovozli xabarni qabul qilish va talaffuzni baholash funksiyasi ---
+async def check_pronunciation(message: Message, state: FSMContext):
+    try:
+        if not message.voice:
+            await message.answer("Iltimos, ovozli xabar yuboring.")
+            return
+        # Ovozli xabarni yuklab olish
+        file = await message.bot.get_file(message.voice.file_id)
+        file_path = file.file_path
+        file_on_disk = f"voice_{message.from_user.id}.ogg"
+        await message.bot.download_file(file_path, file_on_disk)
+
+        # OGG ni WAV ga o'zgartirish
+        audio = AudioSegment.from_file(file_on_disk)
+        wav_path = file_on_disk.replace('.ogg', '.wav')
+        audio.export(wav_path, format="wav")
+
+        # SpeechRecognition orqali matnga aylantirish
+        recognizer = sr.Recognizer()
+        with sr.AudioFile(wav_path) as source:
+            audio_data = recognizer.record(source)
+            try:
+                text = recognizer.recognize_google(audio_data, language='en-US')
+            except sr.UnknownValueError:
+                await message.answer("Ovozli xabaringizdan matn aniqlanmadi. Iltimos, aniqroq talaffuz qiling.")
+                os.remove(file_on_disk)
+                os.remove(wav_path)
+                return
+            except Exception as e:
+                await message.answer(f"Xatolik: {str(e)}")
+                os.remove(file_on_disk)
+                os.remove(wav_path)
+                return
+
+        # Matn tilini aniqlash (bitta so'z yoki qisqa matn uchun maxsus tekshiruv)
+        try:
+            lang = detect(text)
+        except Exception:
+            lang = "unknown"
+
+        # Agar matn bitta so'z yoki 2 so'zdan kam bo'lsa, va recognize_google 'en-US' dan natija qaytargan bo'lsa, uni inglizcha deb qabul qilamiz
+        word_count = len(text.split())
+        is_short = word_count <= 2
+        is_english = (lang == "en") or is_short
+
+        if not is_english:
+            await message.answer("❌ Matningiz ingliz tilida emas yoki talaffuz aniq emas. Iltimos, ingliz tilida gapiring.")
+        else:
+            await message.answer(f"🗣 Sizning matningiz: \n{text}\n\nTarjimasi (uz): {Translator().translate(text, src='en', dest='uz').text}")
+        os.remove(file_on_disk)
+        os.remove(wav_path)
+    except Exception as e:
+        await message.answer(f"Xatolik yuz berdi: {str(e)}")
+        try:
+            if os.path.exists(file_on_disk):
+                os.remove(file_on_disk)
+            if os.path.exists(wav_path):
+                os.remove(wav_path)
+        except:
+            pass

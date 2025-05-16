@@ -9,6 +9,7 @@ async def show_menu(message: Message):
         [InlineKeyboardButton(text="GRAMMATIKA", callback_data="grammatika")],
         [InlineKeyboardButton(text="TINGLASH", callback_data="tinglash")],
         [InlineKeyboardButton(text="GAPIRISH", callback_data="gapirish")],
+        [InlineKeyboardButton(text="Ovozli test (VOICE TEST)", callback_data="voice_test")],
         [InlineKeyboardButton(text="STATISTIKA", callback_data="statistika")]
     ])
 
