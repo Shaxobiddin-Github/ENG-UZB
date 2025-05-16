@@ -1,0 +1,18 @@
+{
+    "Present Simple": [
+      {
+        "topic": "Present Simple",
+        "explanation": "Present Simple is used for habits, facts, and routines.",
+        "example": "She goes to school every day.",
+        "exercise": "Fill in the blank: He ___ (play) football on weekends."
+      }
+    ],
+    "Past Simple": [
+      {
+        "topic": "Past Simple",
+        "explanation": "Past Simple is used for completed actions in the past.",
+        "example": "They visited London last year.",
+        "exercise": "Fill in the blank: She ___ (watch) a movie yesterday."
+      }
+    ]
+  }

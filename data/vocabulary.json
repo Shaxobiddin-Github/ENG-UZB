@@ -1,0 +1,262 @@
+{
+  "food": [
+    {
+      "word": "apple",
+      "translation": "olma",
+      "example": "I eat an apple every morning."
+    },
+    {
+      "word": "bread",
+      "translation": "non",
+      "example": "She bought fresh bread from the store."
+    },
+    {
+      "word": "cheese",
+      "translation": "pishloq",
+      "example": "He likes cheese on his sandwich."
+    },
+    {
+      "word": "rice",
+      "translation": "guruch",
+      "example": "We had rice and chicken for dinner."
+    },
+    {
+      "word": "milk",
+      "translation": "sut",
+      "example": "Children drink milk every day."
+    },
+    {
+      "word": "carrot",
+      "translation": "sabzi",
+      "example": "Rabbits love to eat carrots."
+    },
+    {
+      "word": "meat",
+      "translation": "go‘sht",
+      "example": "They served grilled meat at the party."
+    },
+    {
+      "word": "banana",
+      "translation": "banan",
+      "example": "He ate a banana for a snack."
+    },
+    {
+      "word": "sugar",
+      "translation": "shakar",
+      "example": "Too much sugar is bad for your health."
+    },
+    {
+      "word": "egg",
+      "translation": "tuxum",
+      "example": "I like boiled eggs for breakfast."
+    }
+  ],
+  "travel": [
+    {
+      "word": "airport",
+      "translation": "aeroport",
+      "example": "We arrived at the airport early."
+    },
+    {
+      "word": "passport",
+      "translation": "pasport",
+      "example": "Don't forget your passport!"
+    },
+    {
+      "word": "luggage",
+      "translation": "yuk",
+      "example": "Her luggage was too heavy."
+    },
+    {
+      "word": "ticket",
+      "translation": "chipta",
+      "example": "He lost his train ticket."
+    },
+    {
+      "word": "hotel",
+      "translation": "mehmonxona",
+      "example": "We stayed in a five-star hotel."
+    },
+    {
+      "word": "map",
+      "translation": "xarita",
+      "example": "She looked at the map to find the museum."
+    },
+    {
+      "word": "bus",
+      "translation": "avtobus",
+      "example": "I took a bus to the city center."
+    },
+    {
+      "word": "train",
+      "translation": "poyezd",
+      "example": "The train was late by 10 minutes."
+    },
+    {
+      "word": "border",
+      "translation": "chegara",
+      "example": "We crossed the border at night."
+    },
+    {
+      "word": "guide",
+      "translation": "yo‘l ko‘rsatuvchi",
+      "example": "Our tour guide was very friendly."
+    }
+  ],
+  "school": [
+    {
+      "word": "book",
+      "translation": "kitob",
+      "example": "She borrowed a book from the library."
+    },
+    {
+      "word": "teacher",
+      "translation": "o‘qituvchi",
+      "example": "The teacher explained the lesson clearly."
+    },
+    {
+      "word": "student",
+      "translation": "o‘quvchi",
+      "example": "Every student got a workbook."
+    },
+    {
+      "word": "classroom",
+      "translation": "sinf xonasi",
+      "example": "They cleaned the classroom after the lesson."
+    },
+    {
+      "word": "homework",
+      "translation": "uy vazifasi",
+      "example": "He forgot to do his homework."
+    },
+    {
+      "word": "exam",
+      "translation": "imtihon",
+      "example": "She studied hard for the exam."
+    },
+    {
+      "word": "pen",
+      "translation": "ruchka",
+      "example": "I need a blue pen to write."
+    },
+    {
+      "word": "desk",
+      "translation": "parta",
+      "example": "Each student has a separate desk."
+    },
+    {
+      "word": "notebook",
+      "translation": "daftar",
+      "example": "He wrote the notes in his notebook."
+    },
+    {
+      "word": "lesson",
+      "translation": "dars",
+      "example": "The math lesson was interesting."
+    }
+  ],
+  "technology": [
+    {
+      "word": "computer",
+      "translation": "kompyuter",
+      "example": "I use my computer for work."
+    },
+    {
+      "word": "internet",
+      "translation": "internet",
+      "example": "The internet is very fast here."
+    },
+    {
+      "word": "phone",
+      "translation": "telefon",
+      "example": "She lost her phone at the cafe."
+    },
+    {
+      "word": "keyboard",
+      "translation": "klaviatura",
+      "example": "I bought a new keyboard yesterday."
+    },
+    {
+      "word": "mouse",
+      "translation": "sichqoncha",
+      "example": "The wireless mouse stopped working."
+    },
+    {
+      "word": "screen",
+      "translation": "ekran",
+      "example": "The screen of the laptop is broken."
+    },
+    {
+      "word": "charger",
+      "translation": "zaryad qurilmasi",
+      "example": "I forgot my charger at home."
+    },
+    {
+      "word": "email",
+      "translation": "elektron pochta",
+      "example": "He sent the file via email."
+    },
+    {
+      "word": "software",
+      "translation": "dasturiy ta'minot",
+      "example": "This software helps you learn English."
+    },
+    {
+      "word": "printer",
+      "translation": "printer",
+      "example": "The printer is out of ink."
+    }
+  ],
+  "health": [
+    {
+      "word": "doctor",
+      "translation": "shifokor",
+      "example": "The doctor gave me some medicine."
+    },
+    {
+      "word": "hospital",
+      "translation": "kasalxona",
+      "example": "He was taken to the hospital."
+    },
+    {
+      "word": "medicine",
+      "translation": "dori",
+      "example": "Take this medicine after meals."
+    },
+    {
+      "word": "headache",
+      "translation": "bosh og‘rig‘i",
+      "example": "I have a terrible headache today."
+    },
+    {
+      "word": "fever",
+      "translation": "isitma",
+      "example": "He has a high fever."
+    },
+    {
+      "word": "nurse",
+      "translation": "hamshira",
+      "example": "The nurse was very kind."
+    },
+    {
+      "word": "pain",
+      "translation": "og‘riq",
+      "example": "She felt pain in her back."
+    },
+    {
+      "word": "clinic",
+      "translation": "klinika",
+      "example": "We visited the clinic for a check-up."
+    },
+    {
+      "word": "toothache",
+      "translation": "tish og‘rig‘i",
+      "example": "A toothache kept him awake all night."
+    },
+    {
+      "word": "bandage",
+      "translation": "bog‘lov",
+      "example": "The nurse put a bandage on the cut."
+    }
+  ]
+}
