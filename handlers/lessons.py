@@ -43,15 +43,15 @@ def save_users(users):
     with open("users.json", "w", encoding="utf-8") as f:
         json.dump(users, f, ensure_ascii=False, indent=4)
 
-# So'zning bir qismini yashirish uchun funksiya
-def create_hint(word):
-    if len(word) < 3:
-        return word
-    indices = random.sample(range(len(word)), len(word) // 2)
-    hint = list(word)
-    for i in indices:
-        hint[i] = "_"
-    return "".join(hint)
+# # So'zning bir qismini yashirish uchun funksiya
+# def create_hint(word):
+#     if len(word) < 3:
+#         return word
+#     indices = random.sample(range(len(word)), len(word) // 2)
+#     hint = list(word)
+#     for i in indices:
+#         hint[i] = "_"
+#     return "".join(hint)
 
 # Talaffuzni generatsiya qilish
 def synthesize_speech(text):
