@@ -9,7 +9,7 @@ from handlers.listening import send_listening
 from handlers.speaking import send_speaking_prompt
 from handlers.test import send_weekly_test
 from handlers.stats import send_stats
-from handlers.lessons import start_lesson, start_test_selection, process_lesson, process_test, process_lesson_test_answer, show_rating, start_game, process_game_answer, start_pronounce, process_pronounce_answer, stop_pronounce, process_language_selection, back_to_language, LessonState, GameState, PronounceState
+from handlers.lessons import start_lesson, start_test_selection, process_lesson, process_test, process_lesson_test_answer, show_rating, start_game, process_game_answer, start_pronounce, process_pronounce_answer, stop_pronounce, process_language_selection, back_to_language, LessonState, GameState, PronounceState, check_pronunciation, start_voice_test, voice_test_button_handler, VOICE_TEST_STATE
 
 # Bot tokeningiz
 API_TOKEN = '7775904021:AAHcsTAzr9eS-VNL3DWKlGUYI9_0KxYLbwc'
@@ -31,6 +31,7 @@ async def set_bot_commands():
         BotCommand(command="grammatika", description="GRAMMATIKA"),
         BotCommand(command="tinglash", description="TINGLASH"),
         BotCommand(command="gapirish", description="GAPIRISH"),
+        BotCommand(command="voice_test", description="OVOZLI TEST"),
         BotCommand(command="statistika", description="STATISTIKA"),
         BotCommand(command="lesson", description="DARS"),
         BotCommand(command="play", description="O'YIN"),
@@ -61,6 +62,10 @@ dp.message.register(process_pronounce_answer, StateFilter(PronounceState.waiting
 dp.callback_query.register(process_language_selection, lambda c: c.data.startswith("lang_"))
 dp.callback_query.register(back_to_language, lambda c: c.data == "back_to_lang")
 dp.callback_query.register(stop_pronounce, lambda c: c.data == "stop")
+dp.message.register(start_voice_test, Command('voice_test'))
+dp.callback_query.register(voice_test_button_handler, lambda c: c.data == "start_voice_test")
+dp.callback_query.register(start_voice_test, lambda c: c.data == "voice_test")
+dp.message.register(check_pronunciation, StateFilter(VOICE_TEST_STATE))
 
 # Boshqa handlerlarni ro'yxatdan o'tkazamiz
 dp.message.register(send_word, Command('soz'))
@@ -71,6 +76,7 @@ dp.message.register(send_listening, Command('tinglash'))
 dp.message.register(send_speaking_prompt, Command('gapirish'))
 dp.message.register(send_weekly_test, Command('weekly_test'))
 dp.message.register(send_stats, Command('statistika'))
+dp.message.register(check_pronunciation, lambda msg: msg.voice is not None)
 
 # Botni ishga tushirish
 async def main():
