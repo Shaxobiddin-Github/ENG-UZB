@@ -46,7 +46,25 @@ async def set_bot_commands():
 # /start buyrug'i uchun handler
 @dp.message(Command("start"))
 async def cmd_start(message: Message):
-    await message.answer("📚 *Ingliz tili botiga xush kelibsiz!*\nQuyidagi bo‘limlardan birini tanlash uchun menyuni oching yoki /lesson bilan dars boshlang:", parse_mode='Markdown')
+    await message.answer(
+        "📚 Ingliz tili botiga xush kelibsiz!\n\n"
+        "Quyidagi buyruqlardan foydalanishingiz mumkin:\n\n"
+        "- /start — Botni boshlash va asosiy menyu\n"
+        "- /lesson — Darslarni tanlash va o‘rganish\n"
+        "- /soz — Yangi so‘zlarni o‘rganish\n"
+        "- /test — So‘zlar bo‘yicha test ishlash\n"
+        "- /rating — Reytingni ko‘rish\n"
+        "- /grammatika — Grammatika darslari\n"
+        "- /tinglash — Tinglab tushunish mashqlari\n"
+        "- /gapirish — Gapirish mashqlari\n"
+        "- /statistika — O‘quv statistikangiz\n"
+        "- /play — So‘z topish o‘yini\n"
+        "- /pronounce — Talaffuz mashqlari\n"
+        "- /voice_test — Ovozli test\n"
+    )
+    await message.answer(
+        "Har bir bo‘lim o‘z vazifasiga ega. Menyudan keraklisini tanlang yoki yuqoridagi buyruqlardan birini yuboring!"
+    )
 
 # Darslar, testlar, o'yin va talaffuz uchun handlerlar
 dp.message.register(start_lesson, Command('lesson'))
@@ -65,6 +83,14 @@ dp.callback_query.register(stop_pronounce, lambda c: c.data == "stop")
 dp.message.register(start_voice_test, Command('voice_test'))
 dp.callback_query.register(voice_test_button_handler, lambda c: c.data == "start_voice_test")
 dp.callback_query.register(start_voice_test, lambda c: c.data == "voice_test")
+dp.message.register(send_word, Command('soz'))
+dp.message.register(start_test, Command('test'))
+dp.message.register(process_test_answer, StateFilter(TestState.waiting_for_answer))
+dp.message.register(send_grammar, Command('grammatika'))
+dp.message.register(send_listening, Command('tinglash'))
+dp.message.register(send_speaking_prompt, Command('gapirish'))
+dp.message.register(send_weekly_test, Command('weekly_test'))
+dp.message.register(send_stats, Command('statistika'))
 dp.message.register(check_pronunciation, StateFilter(VOICE_TEST_STATE))
 
 # Boshqa handlerlarni ro'yxatdan o'tkazamiz
@@ -76,7 +102,8 @@ dp.message.register(send_listening, Command('tinglash'))
 dp.message.register(send_speaking_prompt, Command('gapirish'))
 dp.message.register(send_weekly_test, Command('weekly_test'))
 dp.message.register(send_stats, Command('statistika'))
-dp.message.register(check_pronunciation, lambda msg: msg.voice is not None)
+# Faqat voice test state uchun ovozli xabar handleri
+dp.message.register(check_pronunciation, StateFilter(VOICE_TEST_STATE))
 
 # Botni ishga tushirish
 async def main():
